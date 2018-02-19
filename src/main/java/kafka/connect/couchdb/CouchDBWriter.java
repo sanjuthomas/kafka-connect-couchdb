@@ -22,6 +22,7 @@ public class CouchDBWriter implements Writer{
     @Override
     public void write(final Collection<SinkRecord> records) {
     	
+    		
     	
     }
 }

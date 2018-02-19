@@ -18,12 +18,9 @@ public class CouchDBSinkConfig extends AbstractConfig {
     
     private static final Logger logger = LoggerFactory.getLogger(CouchDBSinkConfig.class);
 	
-	public static final String COUCHDB_HOST = "couchdb.host";
-	private static final String COUCHDB_HOST_DOC = "couchdb host ip";
+	public static final String COUCHDB_HOSTS = "couchdb.hosts";
+	private static final String COUCHDB_HOSTS_DOC = "couchdb hosts. a comma seperated list of hosts";
 	
-	public static final String COUCHDB_PORT = "couchdb.port";
-    private static final String COUCHDB_PORT_DOC = "couchdb port";
-    
 	public static final String CONNECTION_USER = "couchdb.user";
 	private static final String CONNECTION_USER_DOC = "couchdb connection user.";
 
@@ -33,9 +30,6 @@ public class CouchDBSinkConfig extends AbstractConfig {
 	public static final String DATABASE_NAME = "couchdb.database.name";
 	private static final String DATABASE_NAME_DOC = "couchdb database name";
 	
-	public static final String COLLECTION_NAME = "couchdb.collection.name";
-	private static final String  COLLECTION_NAME_DOC = "couchdb collection name";
-
 	public static final String BATCH_SIZE = "couchdb.batch.size";
 	private static final String BATCH_SIZE_DOC = "couchdb batch size";
 	
@@ -50,14 +44,12 @@ public class CouchDBSinkConfig extends AbstractConfig {
 	private static final String RETRY_BACKOFF_MS_DOC = "The time in milliseconds to wait following an error/exception before a retry attempt is made.";
 	
 	public static ConfigDef CONFIG_DEF = new ConfigDef()
-			.define(COUCHDB_HOST, Type.STRING, Importance.HIGH, COUCHDB_HOST_DOC)
-			.define(COUCHDB_PORT, Type.INT, Importance.HIGH, COUCHDB_PORT_DOC)
+			.define(COUCHDB_HOSTS, Type.STRING, Importance.HIGH, COUCHDB_HOSTS_DOC)
 			.define(CONNECTION_USER, Type.STRING, Importance.HIGH, CONNECTION_USER_DOC)
 			.define(CONNECTION_PASSWORD, Type.STRING, Importance.LOW, CONNECTION_PASSWORD_DOC)
 			.define(BATCH_SIZE, Type.INT, Importance.MEDIUM, BATCH_SIZE_DOC)
 			.define(MAX_RETRIES, Type.INT, Importance.MEDIUM, MAX_RETRIES_DOC)
 			.define(DATABASE_NAME, Type.STRING, Importance.MEDIUM, DATABASE_NAME_DOC)
-			.define(COLLECTION_NAME, Type.STRING, Importance.MEDIUM, COLLECTION_NAME_DOC)
 			.define(WRITER_IMPL, Type.STRING, Importance.MEDIUM, WRITER_IMPL_DOC)
 			.define(RETRY_BACKOFF_MS, Type.INT, RETRY_BACKOFF_MS_DEFAULT, Importance.MEDIUM, RETRY_BACKOFF_MS_DOC);
 

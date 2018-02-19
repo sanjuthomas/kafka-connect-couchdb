@@ -30,8 +30,8 @@ public class CouchDBSinkConfig extends AbstractConfig {
 	public static final String COUCHDB_CONNECTION_PASSWORD = "couchdb.password";
 	private static final String COUCHDB_CONNECTION_PASSWORD_DOC = "couchdb connection password";
 	
-	public static final String COUCGDB_DATABASE_NAME = "couchdb.database.name";
-	private static final String COUCHDB_DATABASE_NAME_DOC = "couchdb database name";
+	public static final String COUCGDB_BUCKET_NAME = "couchdb.bucket.name";
+	private static final String COUCHDB_BUCKET_NAME_DOC = "couchdb bucket name";
 	
 	public static final String COUCHDB_BATCH_SIZE = "couchdb.batch.size";
 	private static final String COUCHDB_BATCH_SIZE_DOC = "couchdb batch size";
@@ -53,7 +53,7 @@ public class CouchDBSinkConfig extends AbstractConfig {
 			.define(COUCHDB_CONNECTION_PASSWORD, Type.STRING, Importance.LOW, COUCHDB_CONNECTION_PASSWORD_DOC)
 			.define(COUCHDB_BATCH_SIZE, Type.INT, Importance.MEDIUM, COUCHDB_BATCH_SIZE_DOC)
 			.define(MAX_RETRIES, Type.INT, Importance.MEDIUM, MAX_RETRIES_DOC)
-			.define(COUCGDB_DATABASE_NAME, Type.STRING, Importance.MEDIUM, COUCHDB_DATABASE_NAME_DOC)
+			.define(COUCGDB_BUCKET_NAME, Type.STRING, Importance.MEDIUM, COUCHDB_BUCKET_NAME_DOC)
 			.define(COUCHDB_WRITER_IMPL, Type.STRING, Importance.MEDIUM, COUCHDB_WRITER_IMPL_DOC)
 			.define(RETRY_BACKOFF_MS, Type.INT, RETRY_BACKOFF_MS_DEFAULT, Importance.MEDIUM, RETRY_BACKOFF_MS_DOC);
 

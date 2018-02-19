@@ -62,7 +62,7 @@ public class CouchDBSinkTask extends SinkTask {
 	private void initWriter(final Map<String, String> config) {
 
 		logger.info("initWriter called!");
-		final String writerClazz = config.get(CouchDBSinkConfig.WRITER_IMPL);
+		final String writerClazz = config.get(CouchDBSinkConfig.COUCHDB_WRITER_IMPL);
 		logger.info("CouchDB writer class {}", writerClazz);
 		if (null == writerClazz || writerClazz.trim().isEmpty()) {
 			this.writer = new CouchDBWriter(config);

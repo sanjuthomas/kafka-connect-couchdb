@@ -18,11 +18,8 @@ public class CouchDBSinkConfig extends AbstractConfig {
     
     private static final Logger logger = LoggerFactory.getLogger(CouchDBSinkConfig.class);
 	
-	public static final String COUCHDB_HOSTS = "couchdb.hosts";
-	private static final String COUCHDB_HOSTS_DOC = "couchdb hosts. a comma seperated list of hosts";
-	
-	public static final String COUCHDB_PORT = "couchdb.port";
-	private static final String COUCHDB_PORT_DOC = "couch db port";
+	public static final String COUCHDB_CONNECTION_URL = "couchdb.connection.url";
+	private static final String COUCHDB_CONNECTION_URL_DOC = "couchdb connection url";
 	
 	public static final String COUCHDB_CONNECTION_USER = "couchdb.user";
 	private static final String COUCHDB_CONNECTION_USER_DOC = "couchdb connection user.";
@@ -30,8 +27,11 @@ public class CouchDBSinkConfig extends AbstractConfig {
 	public static final String COUCHDB_CONNECTION_PASSWORD = "couchdb.password";
 	private static final String COUCHDB_CONNECTION_PASSWORD_DOC = "couchdb connection password";
 	
-	public static final String COUCGDB_BUCKET_NAME = "couchdb.bucket.name";
-	private static final String COUCHDB_BUCKET_NAME_DOC = "couchdb bucket name";
+	public static final String COUCHDB_REST_ENDPOINT = "couchdb.bulk.endpoint";
+	private static final String COUCHDB_REST_ENDPOINT_DOC = "couchdb bulk endpoint";
+	
+	public static final String COUCHDB_DATABSE = "couchdb.database";
+	private static final String COUCHDB_DATABSE_DOC = "couchdb database name.";
 	
 	public static final String COUCHDB_BATCH_SIZE = "couchdb.batch.size";
 	private static final String COUCHDB_BATCH_SIZE_DOC = "couchdb batch size";
@@ -47,13 +47,13 @@ public class CouchDBSinkConfig extends AbstractConfig {
 	private static final String RETRY_BACKOFF_MS_DOC = "The time in milliseconds to wait following an error/exception before a retry attempt is made.";
 	
 	public static ConfigDef CONFIG_DEF = new ConfigDef()
-			.define(COUCHDB_HOSTS, Type.STRING, Importance.HIGH, COUCHDB_HOSTS_DOC)
-			.define(COUCHDB_PORT, Type.STRING, Importance.HIGH, COUCHDB_PORT_DOC)
+			.define(COUCHDB_CONNECTION_URL, Type.STRING, Importance.HIGH, COUCHDB_CONNECTION_URL_DOC)
+			.define(COUCHDB_REST_ENDPOINT, Type.STRING, Importance.HIGH, COUCHDB_REST_ENDPOINT_DOC)
+			.define(COUCHDB_DATABSE, Type.STRING, Importance.HIGH, COUCHDB_DATABSE_DOC)
 			.define(COUCHDB_CONNECTION_USER, Type.STRING, Importance.HIGH, COUCHDB_CONNECTION_USER_DOC)
 			.define(COUCHDB_CONNECTION_PASSWORD, Type.STRING, Importance.LOW, COUCHDB_CONNECTION_PASSWORD_DOC)
 			.define(COUCHDB_BATCH_SIZE, Type.INT, Importance.MEDIUM, COUCHDB_BATCH_SIZE_DOC)
 			.define(MAX_RETRIES, Type.INT, Importance.MEDIUM, MAX_RETRIES_DOC)
-			.define(COUCGDB_BUCKET_NAME, Type.STRING, Importance.MEDIUM, COUCHDB_BUCKET_NAME_DOC)
 			.define(COUCHDB_WRITER_IMPL, Type.STRING, Importance.MEDIUM, COUCHDB_WRITER_IMPL_DOC)
 			.define(RETRY_BACKOFF_MS, Type.INT, RETRY_BACKOFF_MS_DEFAULT, Importance.MEDIUM, RETRY_BACKOFF_MS_DOC);
 

@@ -1,20 +1,41 @@
 package kafka.connect.couchdb;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-
-import kafka.connect.couchdb.sink.CouchDBSinkConfig;
-
-
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.errors.RetriableException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.CouchbaseCluster;import com.couchbase.client.java.document.json.JsonObject;
-
+import kafka.connect.couchdb.sink.CouchDBSinkConfig;
 
 /**
  * 
@@ -23,28 +44,80 @@ import com.couchbase.client.java.CouchbaseCluster;import com.couchbase.client.ja
  */
 public class CouchDBWriter implements Writer {
 
-    private static final Logger logger = LoggerFactory.getLogger(CouchDBWriter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CouchDBWriter.class);
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_JSON;
 
-    private final CouchbaseCluster cluster;
-    private final String bucketName;
+	private final String connectionUrl;
+	private final String user;
+	private final String password;
+	private final String databseName;
+	private final String endpoint;
+	private final CloseableHttpClient httpClient;
+	private final HttpClientContext localContext;
+	private final RequestConfig requestConfig;
 
-    public CouchDBWriter(final Map<String, String> config) {
+	public CouchDBWriter(final Map<String, String> config) {
 
-        bucketName = config.get(CouchDBSinkConfig.COUCGDB_BUCKET_NAME);
-        cluster = CouchbaseCluster.create(config.get(CouchDBSinkConfig.COUCHDB_HOSTS).split(","));
-    }
+		connectionUrl = config.get(CouchDBSinkConfig.COUCHDB_CONNECTION_URL);
+		user = config.get(CouchDBSinkConfig.COUCHDB_CONNECTION_USER);
+		password = config.get(CouchDBSinkConfig.COUCHDB_CONNECTION_PASSWORD);
+		databseName = config.get(CouchDBSinkConfig.COUCHDB_DATABSE);
+		endpoint = config.get(CouchDBSinkConfig.COUCHDB_REST_ENDPOINT);
 
-    @Override
-    public void write(final Collection<SinkRecord> records) {
+		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(5 * 1000).build();
+		localContext = HttpClientContext.create();
+		httpClient = HttpClientBuilder.create().build();
+		final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+		localContext.setCredentialsProvider(credentialsProvider);
+		localContext.setRequestConfig(requestConfig);
+	}
 
-        logger.debug("Number of recrods received in writer {}", records.size());
-        final Bucket buket = cluster.openBucket(bucketName);
-        records.forEach( r -> {
-            final Map<String, Object> values = (Map<String, Object>) r.value();
-            final JsonObject jsonObject = JsonObject.create();
-            jsonObject.put
-            
-        });
+	@Override
+	public void write(final Collection<SinkRecord> records) {
 
-    }
+		try {
+			final CloseableHttpResponse response = httpClient.execute(createPost(records), localContext);
+			final StatusLine statusLine = response.getStatusLine();
+			if(HttpStatus.SC_CREATED != statusLine.getStatusCode()) {
+				logger.error(response.getStatusLine().getReasonPhrase());
+				throw new ConnectException("Write to couchdb failed "+ response.getStatusLine().getReasonPhrase());
+			}
+		} catch (IOException e) {
+			logger.error("batch write failed {}", e);
+			throw new RetriableException(e.getMessage());
+		}
+	}
+
+	private HttpPost createPost(final Collection<SinkRecord> records) {
+
+		try {
+			final List<ObjectNode> nodes = new ArrayList<ObjectNode>();
+			records.forEach(r -> {
+				nodes.add(MAPPER.valueToTree(r.value()));
+			});
+			final Map<String, List<ObjectNode>> map = new HashMap<>();
+			map.put("docs", nodes);
+			final String jsonString = MAPPER.writeValueAsString(map);
+			final HttpPost request = new HttpPost(ruiBuilder().build());
+			final StringEntity params = new StringEntity(jsonString, "UTF-8");
+			params.setContentType(DEFAULT_CONTENT_TYPE.toString());
+			request.setEntity(params);
+			return request;
+		} catch (JsonProcessingException | MalformedURLException | URISyntaxException e) {
+			logger.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private URIBuilder ruiBuilder() throws MalformedURLException {
+
+		logger.debug("received connectionUrl {}, and databseName {}", connectionUrl, databseName);
+		final URIBuilder builder = new URIBuilder();
+		final URL url = new URL(connectionUrl);
+		builder.setScheme(url.getProtocol()).setHost(url.getAuthority()).setPath(url.getPath());
+		builder.setPath("/" + databseName + "/" + endpoint);
+		return builder;
+	}
 }

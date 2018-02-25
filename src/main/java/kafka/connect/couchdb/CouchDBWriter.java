@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kafka.connect.couchdb.sink.CouchDBSinkConfig;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
@@ -25,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.errors.RetriableException;
 import org.apache.kafka.connect.sink.SinkRecord;
@@ -34,8 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import kafka.connect.couchdb.sink.CouchDBSinkConfig;
 
 /**
  * 
@@ -80,6 +81,7 @@ public class CouchDBWriter implements Writer {
 		try {
 			final CloseableHttpResponse response = httpClient.execute(createPost(records), localContext);
 			final StatusLine statusLine = response.getStatusLine();
+			EntityUtils.consumeQuietly(response.getEntity());
 			if(HttpStatus.SC_CREATED != statusLine.getStatusCode()) {
 				logger.error(response.getStatusLine().getReasonPhrase());
 				throw new ConnectException("Write to couchdb failed "+ response.getStatusLine().getReasonPhrase());

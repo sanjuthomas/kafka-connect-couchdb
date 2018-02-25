@@ -16,6 +16,7 @@ import mockit.Deencapsulation;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.errors.RetriableException;
@@ -92,6 +93,31 @@ public class TestCouchDBSinkTask {
                 }
             }
         }
+    }
+    
+    @Test
+    public void shouldPutRecordsInTheWriter(){
+        
+        task.start(config);
+        initDependencies();
+        
+        new Expectations() {{
+            writer.write(documents);
+            times = 1;
+        }};
+        
+        final Account account = new Account("A1");
+        final Client client = new Client("C1", account);
+        final QuoteRequest quoteRequest = new QuoteRequest("Q1", "APPL", 100, client, new Date());
+        documents.add(new SinkRecord("trades", 1, null, null, null,  MAPPER.convertValue(quoteRequest, Map.class), 0));
+        task.put(documents);
+        
+        new Verifications() {{
+            List<SinkRecord> ds;
+            writer.write(ds = withCapture());
+            assertEquals("trades", ds.get(0).topic());
+            assertEquals(1, ds.size());
+        }};
     }
     
     private void initDependencies() {

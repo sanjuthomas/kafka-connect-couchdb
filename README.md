@@ -5,7 +5,7 @@ Kafka Connect CouchDB is a sink only connector to pull messages from Kafka to st
 [Apache ZooKeeper](https://zookeeper.apache.org) and [Apache Kafka](https://kafka.apache.org) installed and running in your machine. Please refer to respective sites to download, install, and start ZooKeeper and Kafka. 
 
 ## What is CouchDB?
-Seamless multi-master sync, that scales from Big Data to Mobile, with an Intuitive HTTP/JSON API and designed for Reliability. [website.](http://couchdb.apache.org)
+Seamless multi-master sync, that scales from Big Data to Mobile, with an Intuitive HTTP/JSON API and designed for Reliability. For more details, refer to official [website.](http://couchdb.apache.org)
 
 ## What is Apache Kafka?
 Apache Kafka is an open-source stream processing platform developed by the Apache Software Foundation written in Scala and Java. The project aims to provide a unified, high-throughput, low-latency platform for handling real-time data feeds. For more details, please refer to [kafka home page](https://kafka.apache.org/).

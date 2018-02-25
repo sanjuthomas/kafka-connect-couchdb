@@ -15,7 +15,7 @@ Apache Kafka is an open-source stream processing platform developed by the Apach
 ![Kafka Connect CouchDB](couchdb.png)
 
 ## Data Mapping
-CouchDB is a schemaless document store/NoSQL database. Since we are working with plain JSON data, we don't need a schema to serialize and deserialize the messages. 
+CouchDB is a schemaless document store/NoSQL database. Since we are working with plain JSON data, a schema is not necessary to serialize and deserialize the messages. 
 
 **For stand-alone mode**, please copy ```kafka_home/config/connect-standalone.properties``` to create ```kafka_home/config/couchdb-connect-standalone.properties``` file. Open ```kafka_home/config/couchdb-connect-standalone.properties``` and set the following properties to false.
 

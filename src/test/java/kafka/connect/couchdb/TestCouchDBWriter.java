@@ -17,6 +17,7 @@ import kafka.connect.IntegrationTest;
 import kafka.connect.beans.Account;
 import kafka.connect.beans.Client;
 import kafka.connect.beans.QuoteRequest;
+import kafka.connect.couchdb.sink.CouchDBSinkConfig;
 
 /**
  * This is an integration test case. This test expect the CouchDB is up and
@@ -35,11 +36,12 @@ public class TestCouchDBWriter {
 
 	@Before
 	public void setup() {
-		config.put("couchdb.connection.url", "http://127.0.0.1:5984");
-		config.put("couchdb.user", "sanju");
-		config.put("couchdb.password", "sanju");
-		config.put("couchdb.database", "trades");
-		config.put("couchdb.bulk.endpoint", "_bulk_docs");
+	    config.put(CouchDBSinkConfig.COUCHDB_CONNECTION_URL, "http://127.0.0.1:5984");
+        config.put(CouchDBSinkConfig.COUCHDB_CONNECTION_USER, "sanju");
+        config.put(CouchDBSinkConfig.COUCHDB_CONNECTION_PASSWORD, "sanju");
+        config.put(CouchDBSinkConfig.COUCHDB_DATABSE, "trades");
+        config.put(CouchDBSinkConfig.COUCHDB_REST_ENDPOINT, "_bulk_docs");
+		config.put(CouchDBSinkConfig.COUCHDB_BATCH_SIZE, "10");
 		writer = new CouchDBWriter(config);
 	}
 

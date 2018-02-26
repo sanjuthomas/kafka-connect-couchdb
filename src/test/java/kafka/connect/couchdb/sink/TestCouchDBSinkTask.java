@@ -56,6 +56,7 @@ public class TestCouchDBSinkTask {
         config.put(CouchDBSinkConfig.COUCHDB_REST_ENDPOINT, "_bulk_docs");
         config.put(CouchDBSinkConfig.RETRY_BACKOFF_MS, "1000");
         config.put(CouchDBSinkConfig.MAX_RETRIES, "3");
+        config.put(CouchDBSinkConfig.COUCHDB_BATCH_SIZE, "10");
     }
     
     @Test(expected = ConnectException.class)

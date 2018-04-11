@@ -131,9 +131,10 @@ public class CouchDBWriter implements Writer {
         } catch (IOException e) {
             logger.error("batch write failed {}", e);
             throw new RetriableException(e.getMessage());
+        } finally {
+            //clear the buffer
+            map.put("docs", new ArrayList<>());
         }
-        //clear the buffer
-        map.put("docs", new ArrayList<>());
     }
 
     class BufferedRecords extends ArrayList<SinkRecord> {

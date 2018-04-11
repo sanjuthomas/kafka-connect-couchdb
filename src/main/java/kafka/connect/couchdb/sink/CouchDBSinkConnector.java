@@ -1,5 +1,4 @@
 package kafka.connect.couchdb.sink;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +58,4 @@ public class CouchDBSinkConnector extends SinkConnector{
 		
 		return COUCHDB_CONNECTOR_VERSION;
 	}
-	
-
 }

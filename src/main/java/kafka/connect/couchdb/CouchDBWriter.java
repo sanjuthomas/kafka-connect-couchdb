@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kafka.connect.couchdb.sink.CouchDBSinkConfig;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
@@ -54,24 +52,11 @@ public class CouchDBWriter implements Writer {
     private final CloseableHttpClient httpClient;
     private final HttpClientContext localContext;
     private final RequestConfig requestConfig;
-    
-    //configurations
-    private final String connectionUrl;
-    private final String user;
-    private final String password;
-    private final String databseName;
-    private final String endpoint;
-    private final int batchSize;
+    private final CouchDBConfig couchDBConfig;
    
     public CouchDBWriter(final Map<String, String> config) {
 
-        connectionUrl = config.get(CouchDBSinkConfig.COUCHDB_CONNECTION_URL);
-        user = config.get(CouchDBSinkConfig.COUCHDB_CONNECTION_USER);
-        password = config.get(CouchDBSinkConfig.COUCHDB_CONNECTION_PASSWORD);
-        databseName = config.get(CouchDBSinkConfig.COUCHDB_DATABSE);
-        endpoint = config.get(CouchDBSinkConfig.COUCHDB_REST_ENDPOINT);
-        batchSize = Integer.valueOf(config.get(CouchDBSinkConfig.COUCHDB_BATCH_SIZE));
-
+    		couchDBConfig = CouchDBConfig.newBuilder(config).build();
         documentMap = new HashMap<>();
         documentMap.put("docs", new ArrayList<>());
         bufferedRecords = new BufferedRecords();
@@ -79,7 +64,7 @@ public class CouchDBWriter implements Writer {
         localContext = HttpClientContext.create();
         httpClient = HttpClientBuilder.create().build();
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(couchDBConfig.username(), couchDBConfig.password()));
         localContext.setCredentialsProvider(credentialsProvider);
         localContext.setRequestConfig(requestConfig);
     }
@@ -106,11 +91,11 @@ public class CouchDBWriter implements Writer {
 
     private URIBuilder uri() throws MalformedURLException {
 
-        logger.debug("received connectionUrl {}, databseName {}, and endpoint {}", connectionUrl, databseName, endpoint);
+        logger.debug("received connectionUrl {}, databseName {}, and endpoint {}", couchDBConfig.connectionUrl(), couchDBConfig.databseName(), couchDBConfig.endpoint());
         final URIBuilder builder = new URIBuilder();
-        final URL url = new URL(connectionUrl);
+        final URL url = new URL(couchDBConfig.connectionUrl());
         builder.setScheme(url.getProtocol()).setHost(url.getAuthority()).setPath(url.getPath());
-        builder.setPath("/" + databseName + "/" + endpoint);
+        builder.setPath("/" + couchDBConfig.databseName() + "/" + couchDBConfig.endpoint());
         return builder;
     }
 
@@ -140,7 +125,7 @@ public class CouchDBWriter implements Writer {
         private static final long serialVersionUID = 1L;
         void buffer(final Collection<SinkRecord> records) {
             records.forEach(r -> {
-            	 	if (batchSize <= size()) {
+            	 	if (couchDBConfig.batchSize() <= size()) {
                      logger.debug("buffer size is {}", size());
                      flush(documentMap);
                      logger.debug("flushed the buffer");

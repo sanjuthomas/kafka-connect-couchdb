@@ -94,7 +94,7 @@ public class CouchDBWriter implements Writer {
     private HttpPost createPost(final String jsonString) {
 
         try {
-            final HttpPost request = new HttpPost(ruiBuilder().build());
+            final HttpPost request = new HttpPost(uri().build());
             final StringEntity params = new StringEntity(jsonString, "UTF-8");
             params.setContentType(DEFAULT_CONTENT_TYPE.toString());
             request.setEntity(params);
@@ -105,9 +105,9 @@ public class CouchDBWriter implements Writer {
         }
     }
 
-    private URIBuilder ruiBuilder() throws MalformedURLException {
+    private URIBuilder uri() throws MalformedURLException {
 
-        logger.debug("received connectionUrl {}, and databseName {}", connectionUrl, databseName);
+        logger.debug("received connectionUrl {}, databseName {}, and endpoint {}", connectionUrl, databseName, endpoint);
         final URIBuilder builder = new URIBuilder();
         final URL url = new URL(connectionUrl);
         builder.setScheme(url.getProtocol()).setHost(url.getAuthority()).setPath(url.getPath());

@@ -79,30 +79,6 @@ public class CouchDBConfig {
 			batchSize = Integer.valueOf(configs.get(CouchDBSinkConfig.COUCHDB_BATCH_SIZE));
 		}
 
-		public void setConnectionUrl(String connectionUrl) {
-			this.connectionUrl = connectionUrl;
-		}
-
-		public void setEndpoint(String endpoint) {
-			this.endpoint = endpoint;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
-
-		public void setDatabseName(String databseName) {
-			this.databseName = databseName;
-		}
-
-		public void setBatchSize(int batchSize) {
-			this.batchSize = batchSize;
-		}
-
 		public CouchDBConfig build() {
 			return new CouchDBConfig(this);
 		}

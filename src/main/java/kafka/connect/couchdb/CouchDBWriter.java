@@ -50,7 +50,7 @@ public class CouchDBWriter implements Writer {
     private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_JSON;
 
     private final BufferedRecords bufferedRecords;
-    private final Map<String, List<ObjectNode>> map;
+    private final Map<String, List<ObjectNode>> documentMap;
     private final CloseableHttpClient httpClient;
     private final HttpClientContext localContext;
     private final RequestConfig requestConfig;
@@ -72,8 +72,8 @@ public class CouchDBWriter implements Writer {
         endpoint = config.get(CouchDBSinkConfig.COUCHDB_REST_ENDPOINT);
         batchSize = Integer.valueOf(config.get(CouchDBSinkConfig.COUCHDB_BATCH_SIZE));
 
-        map = new HashMap<>();
-        map.put("docs", new ArrayList<>());
+        documentMap = new HashMap<>();
+        documentMap.put("docs", new ArrayList<>());
         bufferedRecords = new BufferedRecords();
         requestConfig = RequestConfig.custom().setConnectionRequestTimeout(5 * 1000).build();
         localContext = HttpClientContext.create();
@@ -86,9 +86,8 @@ public class CouchDBWriter implements Writer {
 
     @Override
     public void write(final Collection<SinkRecord> records) {
-
         bufferedRecords.buffer(records);
-        flush();
+        flush(documentMap);
     }
 
     private HttpPost createPost(final String jsonString) {
@@ -115,10 +114,10 @@ public class CouchDBWriter implements Writer {
         return builder;
     }
 
-    private void flush() {
+    private void flush(Map<String, List<ObjectNode>> records) {
 
         try {
-            final CloseableHttpResponse response = httpClient.execute(createPost(MAPPER.writeValueAsString(map)), localContext);
+            final CloseableHttpResponse response = httpClient.execute(createPost(MAPPER.writeValueAsString(records)), localContext);
             final StatusLine statusLine = response.getStatusLine();
             EntityUtils.consumeQuietly(response.getEntity());
             if (HttpStatus.SC_CREATED != statusLine.getStatusCode()) {
@@ -132,24 +131,22 @@ public class CouchDBWriter implements Writer {
             logger.error("batch write failed {}", e);
             throw new RetriableException(e.getMessage());
         } finally {
-            //clear the buffer
-            map.put("docs", new ArrayList<>());
+        	 	documentMap.get("docs").clear();
         }
     }
 
     class BufferedRecords extends ArrayList<SinkRecord> {
 
         private static final long serialVersionUID = 1L;
-
         void buffer(final Collection<SinkRecord> records) {
             records.forEach(r -> {
-                map.get("docs").add(MAPPER.valueToTree(r.value()));
+            	 	if (batchSize <= size()) {
+                     logger.debug("buffer size is {}", size());
+                     flush(documentMap);
+                     logger.debug("flushed the buffer");
+                 }
+                documentMap.get("docs").add(MAPPER.valueToTree(r.value()));
             });
-            if (batchSize <= size()) {
-                logger.debug("buffer size is {}", batchSize);
-                flush();
-                logger.debug("flushed the buffer");
-            }
         }
     }
 
